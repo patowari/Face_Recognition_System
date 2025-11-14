@@ -48,6 +48,42 @@ def decode_image(image_data):
     except Exception as e:
         raise ValueError(f"Failed to decode image: {str(e)}")
 
+@app.route('/', methods=['GET'])
+def index():
+    """API documentation endpoint"""
+    return jsonify({
+        'message': 'Face Recognition API',
+        'version': '1.0',
+        'endpoints': {
+            'GET /': 'API documentation',
+            'GET /health': 'Health check',
+            'GET /list': 'List all registered people',
+            'POST /register': 'Register a new face (multipart/form-data or JSON with image, name, age, gender)',
+            'POST /recognize': 'Recognize a face (multipart/form-data or JSON with image)',
+            'DELETE /delete/<person_id>': 'Delete a person by ID',
+            'POST /clear': 'Clear all registered faces'
+        },
+        'usage': {
+            'register_example': {
+                'method': 'POST',
+                'url': '/register',
+                'body': {
+                    'image': 'base64_encoded_image_or_file_upload',
+                    'name': 'John Doe',
+                    'age': 30,
+                    'gender': 'male'
+                }
+            },
+            'recognize_example': {
+                'method': 'POST',
+                'url': '/recognize',
+                'body': {
+                    'image': 'base64_encoded_image_or_file_upload'
+                }
+            }
+        }
+    }), 200
+
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint"""
@@ -99,9 +135,9 @@ def register_face():
         # Add new face encoding and metadata
         face_encoding = face_encodings[0]
         metadata = {
-            'name': name,
+            'name': str(name),
             'age': int(age),
-            'gender': gender,
+            'gender': str(gender),
             'registered_at': datetime.now().isoformat()
         }
         
@@ -114,7 +150,7 @@ def register_face():
         return jsonify({
             'success': True,
             'message': f'Successfully registered {name}',
-            'person_id': len(data['encodings']) - 1,
+            'person_id': int(len(data['encodings']) - 1),
             'metadata': metadata
         }), 200
         
@@ -170,11 +206,11 @@ def recognize_face():
                     
                     results.append({
                         'recognized': True,
-                        'name': metadata['name'],
-                        'age': metadata['age'],
-                        'gender': metadata['gender'],
+                        'name': str(metadata['name']),
+                        'age': int(metadata['age']),
+                        'gender': str(metadata['gender']),
                         'confidence': float(confidence),
-                        'person_id': best_match_index
+                        'person_id': int(best_match_index)
                     })
                 else:
                     results.append({'recognized': False, 'message': 'Face not recognized'})
@@ -197,13 +233,13 @@ def list_people():
         people = []
         for i, metadata in enumerate(data['metadata']):
             people.append({
-                'person_id': i,
-                'name': metadata['name'],
-                'age': metadata['age'],
-                'gender': metadata['gender'],
-                'registered_at': metadata.get('registered_at', 'Unknown')
+                'person_id': int(i),
+                'name': str(metadata['name']),
+                'age': int(metadata['age']),
+                'gender': str(metadata['gender']),
+                'registered_at': str(metadata.get('registered_at', 'Unknown'))
             })
-        return jsonify({'count': len(people), 'people': people}), 200
+        return jsonify({'count': int(len(people)), 'people': people}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

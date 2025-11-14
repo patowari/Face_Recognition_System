@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f8f9ff;
+        }
+
+        .preview-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result.info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .result h3 {
+            margin-bottom: 10px;
+        }
+
+        .result pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: rgba(0,0,0,0.05);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .people-list {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .people-list h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .person-item {
+            background: #f8f9ff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .person-info {
+            flex: 1;
+        }
+
+        .person-info strong {
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .person-info p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: auto;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .actions-bar button {
+            flex: 1;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Face Recognition System</h1>
+
+        <div class="cards-container">
+            <!-- Register Card -->
+            <div class="card">
+                <h2>📝 Register New Person</h2>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerImage">Upload Photo:</label>
+                        <input type="file" id="registerImage" accept="image/*" required>
+                        <div class="preview-container">
+                            <img id="registerPreview" class="preview-image" style="display:none;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" placeholder="Enter name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age:</label>
+                        <input type="number" id="age" placeholder="Enter age" min="1" max="120" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender:</label>
+                        <select id="gender" required>
+                            <option value="">Select gender</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit">Register Person</button>
+                    <div class="loader" id="registerLoader"></div>
+                </form>
+                <div id="registerResult" class="result"></div>
+            </div>
+
+            <!-- Recognize Card -->
+            <div class="card">
+                <h2>🔍 Recognize Person</h2>
+                <form id="recognizeForm">
+                    <div class="form-group">
+                        <label for="recognizeImage">Upload Photo:</label>
+                        <input type="file" id="recognizeImage" accept="image/*" required>
+                        <div class="preview-container">
+                            <img id="recognizePreview" class="preview-image" style="display:none;">
+                        </div>
+                    </div>
+                    <button type="submit">Recognize Face</button>
+                    <div class="loader" id="recognizeLoader"></div>
+                </form>
+                <div id="recognizeResult" class="result"></div>
+            </div>
+        </div>
+
+        <!-- People List -->
+        <div class="people-list">
+            <h2>👥 Registered People</h2>
+            <div class="actions-bar">
+                <button onclick="loadPeopleList()">🔄 Refresh List</button>
+                <button onclick="clearDatabase()" style="background: #dc3545;">🗑️ Clear All</button>
+            </div>
+            <div class="loader" id="listLoader"></div>
+            <div id="peopleContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000';
+
+        // Preview image on file select
+        document.getElementById('registerImage').addEventListener('change', function(e) {
+            previewImage(e.target, 'registerPreview');
+        });
+
+        document.getElementById('recognizeImage').addEventListener('change', function(e) {
+            previewImage(e.target, 'recognizePreview');
+        });
+
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Register Form Submit
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loader = document.getElementById('registerLoader');
+            const result = document.getElementById('registerResult');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            loader.style.display = 'block';
+            result.style.display = 'none';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('image', document.getElementById('registerImage').files[0]);
+            formData.append('name', document.getElementById('name').value);
+            formData.append('age', document.getElementById('age').value);
+            formData.append('gender', document.getElementById('gender').value);
+
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('registerResult', 'success', '✅ Success!', 
+                        `${data.message}\nPerson ID: ${data.person_id}\nRegistered at: ${data.metadata.registered_at}`);
+                    document.getElementById('registerForm').reset();
+                    document.getElementById('registerPreview').style.display = 'none';
+                    loadPeopleList();
+                } else {
+                    showResult('registerResult', 'error', '❌ Error', data.error);
+                }
+            } catch (error) {
+                showResult('registerResult', 'error', '❌ Connection Error', 
+                    'Could not connect to server. Make sure the API is running on port 5000.');
+            } finally {
+                loader.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Recognize Form Submit
+        document.getElementById('recognizeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loader = document.getElementById('recognizeLoader');
+            const result = document.getElementById('recognizeResult');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
+            loader.style.display = 'block';
+            result.style.display = 'none';
+            submitBtn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('image', document.getElementById('recognizeImage').files[0]);
+
+            try {
+                const response = await fetch(`${API_URL}/recognize`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.recognized) {
+                        showResult('recognizeResult', 'success', '✅ Person Recognized!', 
+                            `Name: ${data.name}\nAge: ${data.age}\nGender: ${data.gender}\nConfidence: ${(data.confidence * 100).toFixed(2)}%\nPerson ID: ${data.person_id}`);
+                    } else {
+                        showResult('recognizeResult', 'info', 'ℹ️ Not Recognized', 
+                            data.message || 'This person is not in the database.');
+                    }
+                } else {
+                    showResult('recognizeResult', 'error', '❌ Error', data.error);
+                }
+            } catch (error) {
+                showResult('recognizeResult', 'error', '❌ Connection Error', 
+                    'Could not connect to server. Make sure the API is running on port 5000.');
+            } finally {
+                loader.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function showResult(elementId, type, title, message) {
+            const result = document.getElementById(elementId);
+            result.className = `result ${type}`;
+            result.innerHTML = `<h3>${title}</h3><pre>${message}</pre>`;
+            result.style.display = 'block';
+        }
+
+        // Load People List
+        async function loadPeopleList() {
+            const loader = document.getElementById('listLoader');
+            const container = document.getElementById('peopleContainer');
+            
+            loader.style.display = 'block';
+            container.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/list`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.count === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                </svg>
+                                <p>No registered people yet. Register someone to get started!</p>
+                            </div>
+                        `;
+                    } else {
+                        data.people.forEach(person => {
+                            const personDiv = document.createElement('div');
+                            personDiv.className = 'person-item';
+                            personDiv.innerHTML = `
+                                <div class="person-info">
+                                    <strong>${person.name}</strong>
+                                    <p>Age: ${person.age} | Gender: ${person.gender}</p>
+                                    <p>ID: ${person.person_id} | Registered: ${new Date(person.registered_at).toLocaleString()}</p>
+                                </div>
+                                <button class="delete-btn" onclick="deletePerson(${person.person_id}, '${person.name}')">Delete</button>
+                            `;
+                            container.appendChild(personDiv);
+                        });
+                    }
+                } else {
+                    container.innerHTML = `<div class="empty-state"><p>Error loading people list</p></div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><p>Could not connect to server</p></div>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Delete Person
+        async function deletePerson(personId, name) {
+            if (!confirm(`Are you sure you want to delete ${name}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/delete/${personId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ ${data.message}`);
+                    loadPeopleList();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert('❌ Could not connect to server');
+            }
+        }
+
+        // Clear Database
+        async function clearDatabase() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL registered people? This cannot be undone!')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/clear`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ ${data.message}`);
+                    loadPeopleList();
+                } else {
+                    alert(`❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                alert('❌ Could not connect to server');
+            }
+        }
+
+        // Load people list on page load
+        window.addEventListener('load', loadPeopleList);
+    </script>
+</body>
+</html>
