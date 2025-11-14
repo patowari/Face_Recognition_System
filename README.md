@@ -5,6 +5,7 @@ A powerful and easy-to-use face recognition system built with Flask and Python. 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/flask-3.0.0-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+<img width="1376" height="774" alt="image" src="https://github.com/user-attachments/assets/7b042bcc-abc7-44db-9a23-425b093130bd" />
 
 ## ✨ Features
 
