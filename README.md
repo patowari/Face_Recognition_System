@@ -29,8 +29,8 @@ A powerful and easy-to-use face recognition system built with Flask and Python. 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Swochchho/khoma.git
-   cd khoma
+   git clone https://github.com/patowari/Face_Recognition_System.git
+   cd Face_Recognition_System
    ```
 
 2. **Install dependencies**
@@ -298,7 +298,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Author
 
 **Swochchho**
-- GitHub: [@Swochchho](https://github.com/Swochchho)
+- GitHub: [@Swochchho](https://github.com/patowari)
 
 ## 🙏 Acknowledgments
 
